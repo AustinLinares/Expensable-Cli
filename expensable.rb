@@ -12,7 +12,7 @@ class Expensable
     @user = nil
     @categories = []
     @transactions = []
-    # @current_month = Date.now
+    @current_month = nil
     @display = "expenses"
   end
 
@@ -26,7 +26,8 @@ class Expensable
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
         @categories = Services::Users.categories(@user.token)
-        table_categories_amount(@date)
+        @current_month = DateTime.now.month
+        table_categories_amount(@current_month)
         action = validate_options(["login", "create_user", "exit"])
       when "create_user" 
         user_data = user_form
@@ -116,12 +117,12 @@ class Expensable
     end
   end
 
-  def table_categories_amount(ab)
+  def table_categories_amount(date)
     amount = 0
     temporal = []
     @categories.map do |categorie|
       categorie[:transactions].select do |transaction|
-        temporal.push(transaction) if transaction[:date][5, 2] == ab.month.to_s
+        temporal.push({categorie[:name] => transaction}) if transaction[:date][5, 2] == date.to_s
       end
     end
     pp temporal
