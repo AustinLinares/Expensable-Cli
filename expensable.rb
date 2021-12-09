@@ -2,12 +2,13 @@
 require "json"
 require "httparty"
 require "terminal-table"
-require_relative "users"
 require "date"
+require_relative "users"
 require_relative "categories"
-
+require_relative "category_handler"
 
 class Expensable
+  include CategoryHandlbegin
   def intialize
     @date = DateTime.now
     @user = nil
@@ -27,10 +28,10 @@ class Expensable
         user_data = login_form
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
-        @categories = Services::Users.categories(@user.token).map { |cat| Categories.new(cat)}
+        @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
         @current_month = DateTime.now.month
         table_categories_amount(@current_month)
-        second_display
+        second_display(@user.token)
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
@@ -43,12 +44,12 @@ class Expensable
     end
   end
 
-  def second_display
+  def second_display(token)
     action = ""
     until action == "logout"
     action = validate_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
-      when "create" then puts "hey"
+      when "create" then puts create_category(token)
       when "show ID" then puts "hey"
       when "update ID" then puts "hey"
       when "delete ID" then puts "hey"
