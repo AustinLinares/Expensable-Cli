@@ -1,7 +1,4 @@
-
-module Services
-  
-  class Categories
+ class Categories
 
     attr_reader :id, :name, :transaction_type, :transactions
 
@@ -17,13 +14,12 @@ module Services
     end
 
     def trans_in_month?(month)
-      @transactions.any? { |tr| tr[date:][5, 2] == month }
+      @transactions.any? { |tr| tr[:date][5, 2] == month }
     end
 
     def only_month_trans(month)
-      sel_trans = @transactions.select { |tr| tr[date:][5, 2] == month }
+      sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
       sel_trans
     end
 
   end
-end
