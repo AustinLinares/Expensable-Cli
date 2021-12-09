@@ -22,9 +22,21 @@ module Services
     @transactions.any? { |tr| tr[:date][5, 2] == month }
   end
 
-  def only_month_trans(month)
-    sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
-    sel_trans
+  # def only_month_trans(month)
+  #   sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
+  #   sel_trans
+  # end
+
+  def month_row(date)
+    amount = 0
+    row = []
+    row << @id
+    row << @name
+    @transactions.each do |tr|
+        amount += tr[:amount] if tr[:date][5, 2] == date
+    end
+    row << amount
+    row
   end
 
   def self.create_category(token, data)
