@@ -30,17 +30,35 @@ class Expensable
         @categories = Services::Users.categories(@user.token).map { |cat| Categories.new(cat)}
         @current_month = DateTime.now.month
         table_categories_amount(@current_month)
-        
+        second_display
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
         pp @user = Services::Users.new(data_new_user)
         @categories = Services::Users.categories(@user.token)
-      # when "logout"
-      #   Services::Users.logout(@user.token)
-      #   puts "chao"
-      #   start
-      # when "exit" then puts "Thanks"
+        second_display
+      else
+        puts "Invalid option"
+      end
+    end
+  end
+
+  def second_display
+    action = ""
+    until action == "logout"
+    action = validate_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
+      case action
+      when "create" then puts "hey"
+      when "show ID" then puts "hey"
+      when "update ID" then puts "hey"
+      when "delete ID" then puts "hey"
+      when "add-to ID" then puts "hey"
+      when "toggle" then puts "hey"
+      when "next" then puts "hey"
+      when "prev" then puts "hey"
+      when "logout" 
+        Services::Users.logout(@user.token)
+        start
       else
         puts "Invalid option"
       end
@@ -48,9 +66,11 @@ class Expensable
   end
 
   def welcome
-  puts "####################################
-  #       Welcome to Expensable      #
-  ####################################"
+    puts [
+      "####################################",
+      "#       Welcome to Expensable      #",
+      "####################################"
+    ].join("\n")
   end
 
   def validate_options(arr_options)
