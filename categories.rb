@@ -26,6 +26,18 @@ module Services
       sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
       sel_trans
     end
+    
+    def month_row(date)
+      amount = 0
+      row = []
+      row << @id
+      row << @name
+      @transactions.each do |tr|
+          amount += tr[:amount] if tr[:date][5, 2] == date
+      end
+      row << amount
+      row
+    end
 
     def self.create_category(token, data)
       options = {
@@ -52,6 +64,24 @@ module Services
       response = delete("/categories/#{id}", options)
     end
 
+  def self.create_category(token, data)
+    options = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Token token=#{token}"
+      },
+      body: data.to_json
+    }
 
+    response = post("/categories", options)
+    # raise(HTTParty::ResponseError, response) unless response.success?
+
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
+  # def only_month_trans(month)
+    #   sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
+    #   sel_trans
+   # end
   end
 end
