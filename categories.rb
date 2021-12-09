@@ -4,9 +4,13 @@
 
 module Services
  class Categories
+
     include HTTParty
+
     attr_reader :id, :name, :transaction_type, :transactions
+    
     base_uri("https://expensable-api.herokuapp.com/")
+
     def initialize(id:, name:, transaction_type:, transactions:)
       @id = id
       @name = name
@@ -22,10 +26,10 @@ module Services
       @transactions.any? { |tr| tr[:date][5, 2] == month }
     end
 
-    def only_month_trans(month)
-      sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
-      sel_trans
-    end
+    # def only_month_trans(month)
+    #   sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
+    #   sel_trans
+    # end
     
     def month_row(date)
       amount = 0
@@ -33,7 +37,7 @@ module Services
       row << @id
       row << @name
       @transactions.each do |tr|
-          amount += tr[:amount] if tr[:date][5, 2] == date
+          amount += tr[:amount] if tr[:date][5, 2] == date.to_s
       end
       row << amount
       row
@@ -79,9 +83,36 @@ module Services
     JSON.parse(response.body, symbolize_names: true)
   end
 
-  # def only_month_trans(month)
-    #   sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
-    #   sel_trans
-   # end
+  def add_transaction(token, data)
+    options = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Token token=#{token}"
+      },
+      body: data.to_json
+    }
+
+    response = self.class.post("/categories/#{@id}/transactions", options)
+
+    fin_data = JSON.parse(response.body, symbolize_names: true)
+    @transactions << fin_data
   end
+
+  def show_cat(date)
+    rows = []
+    trans = only_month_trans(date)
+    table = Terminal::Table.new
+    table.title = "#{@name}\n#{date}"
+    table.headings = %w[ID Date Amount Notes]
+    trans.each do |tr|
+    rows << [tr[:id], tr[:date], tr[:amount], tr[:notes]]      
+    end
+    table.rows = rows
+    puts table
+  end
+
+  def only_month_trans(month)
+    @transactions.select { |tr| tr[:date][5, 2] == month.to_s }
+  end
+end
 end
