@@ -6,7 +6,7 @@ module Services
  class Categories
   include HTTParty
   attr_reader :id, :name, :transaction_type, :transactions
-
+  base_uri("https://expensable-api.herokuapp.com/")
   def initialize(id:, name:, transaction_type:, transactions:)
     @id = id
     @name = name
@@ -30,8 +30,8 @@ module Services
   def self.create_category(token, data)
     options = {
       headers: {
-        Authorization: "Token token=#{token}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: "Token token=#{token}"
       },
       body: data.to_json
     }

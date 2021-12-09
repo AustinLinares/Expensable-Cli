@@ -49,7 +49,7 @@ class Expensable
     until action == "logout"
     action = validate_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
-      when "create" then puts create_category(token)
+      when "create" then puts create_cat(token)
       when "show ID" then puts "hey"
       when "update ID" then puts "hey"
       when "delete ID" then puts "hey"

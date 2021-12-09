@@ -3,7 +3,7 @@ require "httparty"
 require_relative "categories"
 
 module CategoryHandlbegin
-  def create_category(token)
+  def create_cat(token)
     category_data = category_form
     new_category = Services::Categories.create_category(token, category_data)
     @categories << new_category
