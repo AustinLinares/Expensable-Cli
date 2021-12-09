@@ -7,7 +7,6 @@ require "date"
 
 
 class Expensable
-
   def intialize
     @date = DateTime.now
     @user = nil
@@ -27,7 +26,7 @@ class Expensable
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
         @categories = Services::Users.categories(@user.token)
-        pp table_categories_amount
+        table_categories_amount(@date)
         action = validate_options(["login", "create_user", "exit"])
       when "create_user" 
         user_data = user_form
@@ -117,16 +116,16 @@ class Expensable
     end
   end
 
-  # def table_categories_amount
-  #   amount = 0
-  #   p temporal = []
-  #   @categories.map do |categorie|
-  #     categorie[:transactions].select do |transaction|
-  #       transaction[:date][5, 2] == @date.month.to_s
-  #     end
-  #   end
-  #   # temporal temporal
-  # end
+  def table_categories_amount(ab)
+    amount = 0
+    temporal = []
+    @categories.map do |categorie|
+      categorie[:transactions].select do |transaction|
+        temporal.push(transaction) if transaction[:date][5, 2] == ab.month.to_s
+      end
+    end
+    pp temporal
+  end
 end
 
 
