@@ -4,6 +4,7 @@ require "httparty"
 require "terminal-table"
 require_relative "users"
 require "date"
+require_relative "categories"
 
 
 class Expensable
@@ -25,7 +26,7 @@ class Expensable
         user_data = login_form
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
-        @categories = Services::Users.categories(@user.token)
+        @categories = Services::Users.categories(@user.token).map { |cat| Categories.new(cat)}
         @current_month = DateTime.now.month
         table_categories_amount(@current_month)
         action = validate_options(["login", "create_user", "exit"])
@@ -118,14 +119,18 @@ class Expensable
   end
 
   def table_categories_amount(date)
-    amount = 0
-    temporal = []
-    @categories.map do |categorie|
-      categorie[:transactions].select do |transaction|
-        temporal.push({categorie[:name] => transaction}) if transaction[:date][5, 2] == date.to_s
-      end
-    end
-    pp temporal
+  #   amount = 0
+  #   temporal = []
+  #   @categories.map do |categorie|
+  #     categorie[:transactions].select do |transaction|
+  #       temporal.push({categorie[:name] => transaction}) if transaction[:date][5, 2] == date.to_s
+  #     end
+  #   end
+  #   pp temporal
+  # end
+    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
+    pp trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
+    
   end
 end
 
