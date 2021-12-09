@@ -3,9 +3,19 @@ require "json"
 require "httparty"
 require "terminal-table"
 require_relative "users"
+require "date"
 
 
 class Expensable
+
+  def intialize
+    @date = DateTime.now
+    @user = nil
+    @categories = []
+    @transactions = []
+    # @current_month = Date.now
+    @display = "expenses"
+  end
 
   def start
     welcome
@@ -14,11 +24,16 @@ class Expensable
       case action
       when "login" 
         user_data = login_form
-        p data_login = Services::Users.login(user_data)
+        data_login = Services::Users.login(user_data)
+        @user = Services::Users.new(data_login)
+        @categories = Services::Users.categories(@user.token)
+        pp table_categories_amount
         action = validate_options(["login", "create_user", "exit"])
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
+        @user = Services::Users.new(data_new_user)
+        @categories = Services::Users.categories(@user.token)
         action = validate_options(["login", "create_user", "exit"])
       # else
       #   puts "Invalid option"
@@ -47,10 +62,10 @@ class Expensable
   def user_form
     print "Email: "
     email = gets.chomp
-    email = validate_email(email)
+    email = validate_email(email, "Invalid format")
     print "Password: "
     password = gets.chomp
-    password = validate_password(password)
+    password = validate_password(password, "Minimum 6 characters")
     print "First name: "
     first_name = gets.chomp
     print "Last name: "
@@ -64,25 +79,25 @@ class Expensable
   def login_form
     print "Email: "
     email = gets.chomp
-    email = validate_email(email)
+    email = validate_email(email, "Cannot be blank")
     print "Password: "
     password = gets.chomp
-    password = validate_password(password)
+    password = validate_password(password, "Cannot be blank")
     {email: email, password: password}
   end
 
-  def validate_email(email)
+  def validate_email(email, error_mess)
     until email.match(/\w+@mail.com/)
-      puts "Invalid option"
+      puts error_mess
       print "Email: "
       email = gets.chomp
     end
     email
   end
 
-  def validate_password(password)
+  def validate_password(password, error_mess)
     until password.length >= 6
-      puts "Invalid option"
+      puts error_mess
       print "Password: "
       password = gets.chomp
     end
@@ -101,6 +116,17 @@ class Expensable
       phone
     end
   end
+
+  # def table_categories_amount
+  #   amount = 0
+  #   p temporal = []
+  #   @categories.map do |categorie|
+  #     categorie[:transactions].select do |transaction|
+  #       transaction[:date][5, 2] == @date.month.to_s
+  #     end
+  #   end
+  #   # temporal temporal
+  # end
 end
 
 
