@@ -15,7 +15,7 @@ class Expensable
     @categories = []
     @transactions = []
     @current_month = nil
-    @display = "expenses"
+    @tr_type = "expenses"
   end
 
   def start
@@ -30,7 +30,8 @@ class Expensable
         @user = Services::Users.new(data_login)
         @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
         @current_month = DateTime.now.month
-        table_categories_amount(@current_month)
+        # table_categories_amount(@current_month)
+        category_table
         second_display(@user.token)
       when "create_user" 
         user_data = user_form

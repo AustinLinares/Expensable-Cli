@@ -13,6 +13,18 @@ module CategoryHandlbegin
     deleted_note = Services::Categories.delete_category(id, @user.token)
   end
 
+  def category_table
+    month_cat = @categories.select { |category| category.trans_in_month?(@current_month.to_s) }
+    table = Terminal::Table.new
+    table.title = "#{@tr_type}\n#{@current_month}"
+    table.headings = ["ID", "Category", "Total"]
+    table.rows = month_cat.map do |trans|
+      trans.month_row(@current_month)
+    end
+    puts table
+  end
+
+
 
   private
   def category_form
