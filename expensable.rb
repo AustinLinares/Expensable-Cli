@@ -2,49 +2,76 @@
 require "json"
 require "httparty"
 require "terminal-table"
-require_relative "users"
 require "date"
-
+require_relative "users"
+require_relative "categories"
+require_relative "category_handler"
 
 class Expensable
-
+  include CategoryHandlbegin
   def intialize
     @date = DateTime.now
     @user = nil
     @categories = []
     @transactions = []
-    # @current_month = Date.now
+    @current_month = nil
     @display = "expenses"
   end
 
   def start
     welcome
-    action = validate_options(["login", "create_user", "exit"])
+    action = ""
     until action == "exit"
+    action = validate_options(["login", "create_user", "exit"])
       case action
       when "login" 
         user_data = login_form
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
-        @categories = Services::Users.categories(@user.token)
-        pp table_categories_amount
-        action = validate_options(["login", "create_user", "exit"])
+        @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
+        @current_month = DateTime.now.month
+        table_categories_amount(@current_month)
+        second_display(@user.token)
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
-        @user = Services::Users.new(data_new_user)
+        pp @user = Services::Users.new(data_new_user)
         @categories = Services::Users.categories(@user.token)
-        action = validate_options(["login", "create_user", "exit"])
-      # else
-      #   puts "Invalid option"
+        second_display
+      else
+        puts "Invalid option"
+      end
+    end
+  end
+
+  def second_display(token)
+    action = ""
+    until action == "logout"
+    action = validate_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
+      case action
+      when "create" then puts create_cat(token)
+      when "show ID" then puts "hey"
+      when "update ID" then puts "hey"
+      when "delete ID" then puts "hey"
+      when "add-to ID" then puts "hey"
+      when "toggle" then puts "hey"
+      when "next" then puts "hey"
+      when "prev" then puts "hey"
+      when "logout" 
+        Services::Users.logout(@user.token)
+        start
+      else
+        puts "Invalid option"
       end
     end
   end
 
   def welcome
-  puts "####################################
-  #       Welcome to Expensable      #
-  ####################################"
+    puts [
+      "####################################",
+      "#       Welcome to Expensable      #",
+      "####################################"
+    ].join("\n")
   end
 
   def validate_options(arr_options)
@@ -73,7 +100,11 @@ class Expensable
     print "Phone: "
     phone = gets.chomp
     phone = validate_phone(phone)
-    {email: email, password: password, first_name: first_name, last_name:last_name, phone: phone}
+    if phone.nil?
+      {email: email, password: password, first_name: first_name, last_name:last_name}
+    else
+      {email: email, password: password, first_name: first_name, last_name:last_name, phone: phone}
+    end
   end
 
   def login_form
@@ -106,7 +137,7 @@ class Expensable
 
   def validate_phone(phone)
     if phone.strip.empty?
-      phone
+      nil
     else
       until phone.match(/^\+51\s\d{9}$/) || phone.match(/^\d{9}$/)
         puts "Required format: +51 111222333 or 111222333"
@@ -117,16 +148,20 @@ class Expensable
     end
   end
 
-  # def table_categories_amount
+  def table_categories_amount(date)
+ 
+    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
+    pp trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
   #   amount = 0
-  #   p temporal = []
+  #   temporal = []
   #   @categories.map do |categorie|
   #     categorie[:transactions].select do |transaction|
-  #       transaction[:date][5, 2] == @date.month.to_s
+  #       temporal.push({categorie[:name] => transaction}) if transaction[:date][5, 2] == date.to_s
   #     end
   #   end
-  #   # temporal temporal
-  # end
+  #   pp temporal
+  # end  
+  end
 end
 
 
