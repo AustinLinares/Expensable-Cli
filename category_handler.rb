@@ -9,6 +9,12 @@ module CategoryHandlbegin
     @categories << new_category
   end
 
+  def delete_category(id)
+    deleted_note = Services::Categories.delete_category(id, @user.token)
+  end
+
+
+  private
   def category_form
     print "Name: "
     name = gets.chomp

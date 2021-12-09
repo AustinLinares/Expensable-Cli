@@ -47,13 +47,13 @@ class Expensable
   def second_display(token)
     action = ""
     until action == "logout"
-    action = validate_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
+    action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
       when "create" then puts create_cat(token)
-      when "show ID" then puts "hey"
-      when "update ID" then puts "hey"
-      when "delete ID" then puts "hey"
-      when "add-to ID" then puts "hey"
+      when "show" then puts "hey"
+      when "update" then puts "hey"
+      when "delete" then delete_category(id)
+      when "add-to" then puts "hey"
       when "toggle" then puts "hey"
       when "next" then puts "hey"
       when "prev" then puts "hey"
@@ -151,7 +151,8 @@ class Expensable
   def table_categories_amount(date)
  
     month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
-    pp trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
+    # trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
+
   #   amount = 0
   #   temporal = []
   #   @categories.map do |categorie|
@@ -161,6 +162,19 @@ class Expensable
   #   end
   #   pp temporal
   # end  
+  end
+
+  private
+  def get_with_options(options)
+    action = ""
+    id = nil
+    loop do
+      puts options.join(" | ")
+      print "> "
+      action, id = gets.chomp.split # ["update", "48"]
+      break
+    end
+    id.nil? ? [action] : [action, id]
   end
 end
 
