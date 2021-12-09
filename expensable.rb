@@ -19,8 +19,9 @@ class Expensable
 
   def start
     welcome
-    action = validate_options(["login", "create_user", "exit"])
+    action = ""
     until action == "exit"
+    action = validate_options(["login", "create_user", "exit"])
       case action
       when "login" 
         user_data = login_form
@@ -29,15 +30,19 @@ class Expensable
         @categories = Services::Users.categories(@user.token).map { |cat| Categories.new(cat)}
         @current_month = DateTime.now.month
         table_categories_amount(@current_month)
-        action = validate_options(["login", "create_user", "exit"])
+        
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
-        @user = Services::Users.new(data_new_user)
+        pp @user = Services::Users.new(data_new_user)
         @categories = Services::Users.categories(@user.token)
-        action = validate_options(["login", "create_user", "exit"])
-      # else
-      #   puts "Invalid option"
+      # when "logout"
+      #   Services::Users.logout(@user.token)
+      #   puts "chao"
+      #   start
+      # when "exit" then puts "Thanks"
+      else
+        puts "Invalid option"
       end
     end
   end
@@ -74,7 +79,11 @@ class Expensable
     print "Phone: "
     phone = gets.chomp
     phone = validate_phone(phone)
-    {email: email, password: password, first_name: first_name, last_name:last_name, phone: phone}
+    if phone.nil?
+      {email: email, password: password, first_name: first_name, last_name:last_name}
+    else
+      {email: email, password: password, first_name: first_name, last_name:last_name, phone: phone}
+    end
   end
 
   def login_form
@@ -107,7 +116,7 @@ class Expensable
 
   def validate_phone(phone)
     if phone.strip.empty?
-      phone
+      nil
     else
       until phone.match(/^\+51\s\d{9}$/) || phone.match(/^\d{9}$/)
         puts "Required format: +51 111222333 or 111222333"
@@ -119,6 +128,9 @@ class Expensable
   end
 
   def table_categories_amount(date)
+ 
+    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
+    pp trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
   #   amount = 0
   #   temporal = []
   #   @categories.map do |categorie|
@@ -127,10 +139,7 @@ class Expensable
   #     end
   #   end
   #   pp temporal
-  # end
-    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
-    pp trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
-    
+  # end  
   end
 end
 

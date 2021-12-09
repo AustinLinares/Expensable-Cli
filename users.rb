@@ -51,5 +51,15 @@ module Services
 
       JSON.parse(response.body, symbolize_names: true)
     end
+
+    def self.logout(token)
+      options = {
+        headers: { Authorization: "Token token=#{token}" }
+      }
+
+      response = delete("/logout", options)
+
+      # JSON.parse(response.body, symbolize_names: true)
+    end
   end
 end
