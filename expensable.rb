@@ -9,6 +9,7 @@ require_relative "category_handler"
 
 class Expensable
   include CategoryHandlbegin
+  include HTTParty
   def intialize
     @date = DateTime.now
     @user = nil
@@ -50,11 +51,17 @@ class Expensable
     until action == "logout"
     action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
-      when "create" then puts create_cat(token)
-      when "show" then puts "hey"
+      when "create" then create_cat(token)
+      when "show" then
+        cat = find_category(id.to_i)
+        cat.show_cat(@current_month)
       when "update" then puts "hey"
       when "delete" then delete_category(id)
-      when "add-to" then puts "hey"
+      when "add-to"
+        cat = find_category(id.to_i)
+        trans_data = trans_form
+        cat.add_transaction(token, trans_data)
+        category_table
       when "toggle" then puts "hey"
       when "next" then puts "hey"
       when "prev" then puts "hey"
@@ -108,6 +115,16 @@ class Expensable
     end
   end
 
+  def trans_form
+    print "Amount: "
+    amount = gets.chomp.to_i # needs validation
+    print "Date: "
+    date = gets.chomp # needs validation
+    print "Notes: "
+    notes = gets.chomp # needs validation
+    {amount: amount, date: date, notes: notes}
+  end
+
   def login_form
     print "Email: "
     email = gets.chomp
@@ -149,9 +166,9 @@ class Expensable
     end
   end
 
-  def table_categories_amount(date)
- 
-    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
+ #  def table_categories_amount(date)
+ # 
+ #    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
     # trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
 
   #   amount = 0
@@ -163,7 +180,7 @@ class Expensable
   #   end
   #   pp temporal
   # end  
-  end
+  # end
 
   private
   def get_with_options(options)
@@ -176,6 +193,10 @@ class Expensable
       break
     end
     id.nil? ? [action] : [action, id]
+  end
+
+  def find_category(id)
+    @categories.find { |cat| cat.id == id}
   end
 end
 
