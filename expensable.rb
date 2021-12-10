@@ -10,6 +10,8 @@ require_relative "category_handler"
 class Expensable
   include CategoryHandlbegin
   include HTTParty
+
+  attr_reader :tr_type
   def intialize
     @date = DateTime.now
     @user = nil
@@ -32,6 +34,7 @@ class Expensable
         @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
         @current_month = DateTime.now.month
         # table_categories_amount(@current_month)
+        @tr_type = "expense"
         category_table
         second_display
       when "create_user" 
@@ -39,6 +42,8 @@ class Expensable
         data_new_user = Services::Users.create_user(user_data)
         pp @user = Services::Users.new(data_new_user)
         @categories = Services::Users.categories(@user.token)
+        @tr_type = "expense"
+        category_table
         second_display
       else
         puts "Invalid option"

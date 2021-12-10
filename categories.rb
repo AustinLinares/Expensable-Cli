@@ -1,6 +1,7 @@
  require "json"
  require "httparty"
  require_relative "category_handler"
+ require "date"
 
 module Services
  class Categories
@@ -105,7 +106,7 @@ module Services
     table.title = "#{@name}\n#{date}"
     table.headings = %w[ID Date Amount Notes]
     trans.each do |tr|
-    rows << [tr[:id], tr[:date], tr[:amount], tr[:notes]]      
+    rows << [tr[:id], (Date.parse tr[:date]).strftime('%a, %b %e'), tr[:amount], tr[:notes]]      
     end
     table.rows = rows
     puts table

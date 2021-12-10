@@ -16,7 +16,7 @@ module CategoryHandlbegin
   def category_table
     month_cat = @categories.select { |category| category.trans_in_month?(@current_month.to_s) }
     table = Terminal::Table.new
-    table.title = "#{@tr_type}\n#{@current_month}"
+    table.title = "#{@tr_type.capitalize}\n#{@current_month}"
     table.headings = ["ID", "Category", "Total"]
     table.rows = month_cat.map do |trans|
       trans.month_row(@current_month)
