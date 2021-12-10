@@ -3,9 +3,9 @@ require "httparty"
 require_relative "categories"
 
 module CategoryHandlbegin
-  def create_cat(token)
+  def create_cat
     category_data = category_form
-    new_category = Services::Categories.create_category(token, category_data)
+    new_category = Services::Categories.create_category(@user.token, category_data)
     @categories << new_category
   end
 

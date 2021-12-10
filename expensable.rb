@@ -33,7 +33,7 @@ class Expensable
         @current_month = DateTime.now.month
         # table_categories_amount(@current_month)
         category_table
-        second_display(@user.token)
+        second_display
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
@@ -46,12 +46,12 @@ class Expensable
     end
   end
 
-  def second_display(token)
+  def second_display
     action = ""
     until action == "logout"
     action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
-      when "create" then create_cat(token)
+      when "create" then create_cat
       when "show" then
         cat = find_category(id.to_i)
         cat.show_cat(@current_month)
