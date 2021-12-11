@@ -23,7 +23,7 @@ class Expensable
   def start
     welcome
     action = ""
-    until action == "exit"
+    # until action == "exit"
     action = validate_options(["login", "create_user", "exit"])
       case action
       when "login" 
@@ -44,10 +44,11 @@ class Expensable
         @tr_type = "expense"
         category_table
         second_display
+      when "exit" then exit!
       else
         puts "Invalid option"
       end
-    end
+    # end
   end
 
   def second_display
