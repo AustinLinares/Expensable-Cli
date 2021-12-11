@@ -8,7 +8,7 @@ module Services
 
     include HTTParty
 
-    attr_reader :id, :name, :transaction_type, :transactions
+    attr_accessor :id, :name, :transaction_type, :transactions
     
     base_uri("https://expensable-api.herokuapp.com/")
 
@@ -71,7 +71,7 @@ module Services
       response = delete("/categories/#{id}", options)
     end
 
-  def self.create_category(token, data)
+  def self.update_category(token, data, id)
     options = {
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ module Services
       body: data.to_json
     }
 
-    response = post("/categories", options)
+    response = patch("/categories/#{id}", options)
     # raise(HTTParty::ResponseError, response) unless response.success?
 
     JSON.parse(response.body, symbolize_names: true)
@@ -101,6 +101,31 @@ module Services
     @transactions << fin_data
   end
 
+  def del_transaction(token, tr_id)
+    options = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Token token=#{token}"
+      }
+    }
+
+    response = self.class.delete("/categories/#{@id}/transactions/#{tr_id}", options)
+    @transactions.delete(find_tr(tr_id))
+  end
+
+  def updt_transaction(token, tr_id, data)
+    options = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Token token=#{token}"
+      },
+      body: data.to_json
+    }
+
+    response = self.class.patch("/categories/#{@id}/transactions/#{tr_id}", options)
+    find_tr(tr_id).merge!(data)
+  end
+
   def show_cat(date)
     rows = []
     trans = only_month_trans(date)
@@ -116,6 +141,10 @@ module Services
 
   def only_month_trans(month)
     @transactions.select { |tr| tr[:date][5, 2] == month.to_s }
+  end
+
+  def find_tr(tr_id)
+    @transactions.find { |tr| tr[:id] == tr_id}
   end
 end
 end
