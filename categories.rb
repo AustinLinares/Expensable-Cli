@@ -23,9 +23,9 @@ module Services
       @transaction_type == "income"
     end
 
-    def trans_in_month?(month)
-      @transactions.any? { |tr| tr[:date][5, 2] == month }
-    end
+    # def trans_in_month?(month)
+    #   @transactions.any? do |tr| tr[:date][5, 2] == month 
+    # end
 
     # def only_month_trans(month)
     #   sel_trans = @transactions.select { |tr| tr[:date][5, 2] == month }
@@ -37,8 +37,10 @@ module Services
       row = []
       row << @id
       row << @name
-      @transactions.each do |tr|
-          amount += tr[:amount] if tr[:date][5, 2] == date.to_s
+      if !@transactions.empty?
+        @transactions.each do |tr|
+            amount += tr[:amount] if tr[:date][5, 2] == date.to_s
+        end
       end
       row << amount
       row

@@ -6,20 +6,20 @@ module CategoryHandlbegin
   def create_cat
     category_data = category_form
     new_category = Services::Categories.create_category(@user.token, category_data)
-    @categories << new_category
+    @categories << Services::Categories.new(new_category)
   end
 
   def delete_category(id)
-    deleted_note = Services::Categories.delete_category(id, @user.token)
+    Services::Categories.delete_category(id, @user.token)
   end
 
   def category_table
-    month_cat = @categories.select { |category| category.trans_in_month?(@current_month.to_s) }
+    # month_cat = @categories.select { |category| category.trans_in_month?(@current_month.to_s) }
     table = Terminal::Table.new
     table.title = "#{@tr_type.capitalize}\n#{@current_month}"
     table.headings = ["ID", "Category", "Total"]
-    table.rows = month_cat.map do |trans|
-      trans.month_row(@current_month)
+    table.rows = @categories.map do |cat|
+      cat.month_row(@current_month)
     end
     puts table
   end
