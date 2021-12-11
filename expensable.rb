@@ -62,6 +62,18 @@ class Expensable
       when "show" then
         cat = find_category(id.to_i)
         cat.show_cat(@current_month)
+        
+        action2 = ""
+        until action2 == "back"
+        action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
+          case action
+          when "add" then puts "add action"
+          when "update" then puts "update action"
+          when "delete" then puts "delete action"
+          when "next" then puts "next action"
+          when "prev" then puts "prev action"
+          end
+        end
         category_table
       when "update" then puts "hey"
       when "delete"
