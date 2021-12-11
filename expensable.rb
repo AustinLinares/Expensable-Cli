@@ -16,7 +16,6 @@ class Expensable
     @date = DateTime.now
     @user = nil
     @categories = []
-    @transactions = []
     @current_month = nil
     @tr_type = "expenses"
   end
@@ -56,12 +55,19 @@ class Expensable
     until action == "logout"
     action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
       case action
-      when "create" then create_cat
+      when "create"
+        create_cat
+        category_table
       when "show" then
         cat = find_category(id.to_i)
         cat.show_cat(@current_month)
+        category_table
       when "update" then puts "hey"
-      when "delete" then delete_category(id)
+      when "delete"
+        cat = find_category(id.to_i)
+        @categories.delete(cat)
+        delete_category(id)
+        category_table
       when "add-to"
         cat = find_category(id.to_i)
         trans_data = trans_form
