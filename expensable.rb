@@ -55,48 +55,80 @@ class Expensable
     action = ""
     until action == "logout"
     action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
-      case action
+    ids = cat_ids
+    case action
       when "create"
         create_cat
         category_table
       when "show" then
-        cat = find_category(id.to_i)
-        cat.show_cat(@current_month)
-        action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
-        until action2 == "back"
-          case action2
-          when "add"
-            tr_data = trans_form
-            cat.add_transaction(@user.token, tr_data)
-          when "update"
-            tr_data = trans_form
-            cat.updt_transaction(@user.token, id2.to_i, tr_data)
-          when "delete"
-            cat.del_transaction(@user.token, id2.to_i)
-          when "next" then puts "next action"
-          when "prev" then puts "prev action"
-          end
+        if ids.include?(id.to_i)
+          cat = find_category(id.to_i)
+          tr_ids = cat.trans_ids
           cat.show_cat(@current_month)
           action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
+          until action2 == "back"
+            case action2
+            when "add"
+              tr_data = trans_form
+              cat.add_transaction(@user.token, tr_data)
+            when "update"
+              if tr_ids.include?(id2.to_i)
+                tr_data = trans_form
+                cat.updt_transaction(@user.token, id2.to_i, tr_data)
+              else
+                puts "Invalid option"
+              end
+            when "delete"
+              if tr_ids.include?(id2.to_i)
+                cat.del_transaction(@user.token, id2.to_i)
+              else
+                puts "Invalid option"
+              end 
+            when "next" then puts "next action"
+            when "prev" then puts "prev action"
+            end
+            cat.show_cat(@current_month)
+            action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
+          end
+          category_table
+        else
+          puts "Invalid ID"
+        end
+      when "update"
+        if ids.include?(id.to_i)
+          cat = find_category(id.to_i)
+          cat_updts = update_category(id)
+          cat.name = cat_updts[:name]
+          cat.transaction_type = cat_updts[:transaction_type] 
+          category_table
+        else
+          puts "Invalid ID"
+        end
+      when "delete"
+        if ids.include?(id.to_i)
+          cat = find_category(id.to_i)
+          @categories.delete(cat)
+          delete_category(id)
+          category_table
+        else
+          puts "Invalid ID"
+        end
+      when "add-to"
+        if ids.include?(id.to_i)
+          cat = find_category(id.to_i)
+          trans_data = trans_form
+          cat.add_transaction(@user.token, trans_data)
+          category_table
+        else
+          puts "Invalid ID"
+        end
+      when "toggle"
+        if @tr_type == "expense"
+          @tr_type = "income" 
+        elsif @tr_type == "income"
+          @tr_type = "expense" 
         end
         category_table
-      when "update"
-        cat = find_category(id.to_i)
-        cat_updts = update_category(id)
-        cat.name = cat_updts[:name]
-        cat.transaction_type = cat_updts[:transaction_type] 
-        category_table
-      when "delete"
-        cat = find_category(id.to_i)
-        @categories.delete(cat)
-        delete_category(id)
-        category_table
-      when "add-to"
-        cat = find_category(id.to_i)
-        trans_data = trans_form
-        cat.add_transaction(@user.token, trans_data)
-        category_table
-      when "toggle" then puts "hey"
       when "next" then puts "hey"
       when "prev" then puts "hey"
       when "logout" 
@@ -232,6 +264,13 @@ class Expensable
   def find_category(id)
     @categories.find { |cat| cat.id == id}
   end
+
+  def cat_ids
+    total = []
+    @categories.each { |cat| total << cat.id}
+    total
+  end
+
 end
 
 

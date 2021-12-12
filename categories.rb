@@ -19,9 +19,9 @@ module Services
       @transactions = transactions
     end
 
-    def income?
-      @transaction_type == "income"
-    end
+    # def expense?
+    #   @transaction_type == "expense"
+    # end
 
     # def trans_in_month?(month)
     #   @transactions.any? do |tr| tr[:date][5, 2] == month 
@@ -145,6 +145,12 @@ module Services
 
   def find_tr(tr_id)
     @transactions.find { |tr| tr[:id] == tr_id}
+  end
+
+  def trans_ids
+    total = []
+    @transactions.each { |tr| total << tr[:id] }
+    total
   end
 end
 end
