@@ -11,7 +11,7 @@ class Expensable
   include CategoryHandlbegin
   include HTTParty
 
-  attr_reader :tr_type
+  attr_accessor :tr_type, :categories, :date, :current_month
   def intialize
     @date = DateTime.now
     @user = nil
@@ -39,8 +39,9 @@ class Expensable
       when "create_user" 
         user_data = user_form
         data_new_user = Services::Users.create_user(user_data)
-        pp @user = Services::Users.new(data_new_user)
-        @categories = Services::Users.categories(@user.token)
+        @user = Services::Users.new(data_new_user)
+        @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
+        @current_month = DateTime.now.month
         @tr_type = "expense"
         category_table
         second_display
@@ -183,12 +184,25 @@ class Expensable
 
   def trans_form
     print "Amount: "
-    amount = gets.chomp.to_i # needs validation
+    amount = gets.chomp # needs validation
+    until amount.match(/\d/)
+      puts "Invalid amount"
+      amount = gets.chomp
+    end
     print "Date: "
-    date = gets.chomp # needs validation
+    date_input = ""
+    begin
+      print "Date: "
+      date_input = gets.chomp
+      date = Date.parse(date_input)
+    rescue ArgumentError
+      puts "Use a valid date format dd/mm/yyyy"
+      retry
+    end
     print "Notes: "
-    notes = gets.chomp # needs validation
-    {amount: amount, date: date, notes: notes}
+    notes = gets.chomp
+    notes = "" if notes.empty? # needs validation
+    {amount: amount.to_i, date: date_input, notes: notes}
   end
 
   def login_form
