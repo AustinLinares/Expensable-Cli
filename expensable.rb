@@ -62,20 +62,30 @@ class Expensable
       when "show" then
         cat = find_category(id.to_i)
         cat.show_cat(@current_month)
-        
-        action2 = ""
-        until action2 == "back"
         action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
-          case action
-          when "add" then puts "add action"
-          when "update" then puts "update action"
-          when "delete" then puts "delete action"
+        until action2 == "back"
+          case action2
+          when "add"
+            tr_data = trans_form
+            cat.add_transaction(@user.token, tr_data)
+          when "update"
+            tr_data = trans_form
+            cat.updt_transaction(@user.token, id2.to_i, tr_data)
+          when "delete"
+            cat.del_transaction(@user.token, id2.to_i)
           when "next" then puts "next action"
           when "prev" then puts "prev action"
           end
+          cat.show_cat(@current_month)
+          action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
         end
         category_table
-      when "update" then puts "hey"
+      when "update"
+        cat = find_category(id.to_i)
+        cat_updts = update_category(id)
+        cat.name = cat_updts[:name]
+        cat.transaction_type = cat_updts[:transaction_type] 
+        category_table
       when "delete"
         cat = find_category(id.to_i)
         @categories.delete(cat)
@@ -84,7 +94,7 @@ class Expensable
       when "add-to"
         cat = find_category(id.to_i)
         trans_data = trans_form
-        cat.add_transaction(token, trans_data)
+        cat.add_transaction(@user.token, trans_data)
         category_table
       when "toggle" then puts "hey"
       when "next" then puts "hey"

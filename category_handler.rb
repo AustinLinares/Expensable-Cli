@@ -13,6 +13,11 @@ module CategoryHandlbegin
     Services::Categories.delete_category(id, @user.token)
   end
 
+  def update_category(id)
+    cat_data = category_form(false)
+    upd_cat = Services::Categories.update_category(@user.token, cat_data, id)
+  end
+
   def category_table
     # month_cat = @categories.select { |category| category.trans_in_month?(@current_month.to_s) }
     table = Terminal::Table.new
@@ -27,13 +32,14 @@ module CategoryHandlbegin
 
 
   private
-  def category_form
+  def category_form(tr = true)
     print "Name: "
     name = gets.chomp
     name = name_validation(name)
     print "Transaction type: "
     transaction_type = gets.chomp
     transaction_type = tr_type_validation(transaction_type)
+    return { name: name, transaction_type: transaction_type } if tr = false
     { name: name, transaction_type: transaction_type, transactions: []}
   end
 
