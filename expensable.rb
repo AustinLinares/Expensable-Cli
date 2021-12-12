@@ -23,6 +23,7 @@ class Expensable
   def start
     welcome
     action = ""
+    @current_month = Date.today
     # until action == "exit"
     action = validate_options(["login", "create_user", "exit"])
       case action
@@ -31,7 +32,7 @@ class Expensable
         data_login = Services::Users.login(user_data)
         @user = Services::Users.new(data_login)
         @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
-        @current_month = DateTime.now.month
+        # @current_month = DateTime.today
         # table_categories_amount(@current_month)
         @tr_type = "expense"
         category_table
@@ -41,7 +42,7 @@ class Expensable
         data_new_user = Services::Users.create_user(user_data)
         @user = Services::Users.new(data_new_user)
         @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
-        @current_month = DateTime.now.month
+        # @current_month = DateTime.now.month
         @tr_type = "expense"
         category_table
         second_display
@@ -130,8 +131,12 @@ class Expensable
           @tr_type = "expense" 
         end
         category_table
-      when "next" then puts "hey"
-      when "prev" then puts "hey"
+      when "next"
+        next_month
+        category_table
+      when "prev"
+        prev_month
+        category_table
       when "logout" 
         Services::Users.logout(@user.token)
         start
@@ -187,6 +192,7 @@ class Expensable
     amount = gets.chomp # needs validation
     until amount.match(/\d/)
       puts "Invalid amount"
+      print "Amount: "
       amount = gets.chomp
     end
     begin
@@ -286,6 +292,14 @@ class Expensable
     total = []
     @categories.each { |cat| total << cat.id}
     total
+  end
+
+  def prev_month
+    @current_month = @current_month << 1
+  end
+
+  def next_month
+    @current_month = @current_month >> 1
   end
 
 end

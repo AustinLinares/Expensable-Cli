@@ -25,7 +25,7 @@ module CategoryHandlbegin
     table.headings = ["ID", "Category", "Total"]
     tr_selected = @categories.select { |cat| cat.transaction_type == @tr_type}
     table.rows = tr_selected.map do |cat|
-      cat.month_row(@current_month)
+      cat.month_row(@current_month.strftime("%-m"))
     end
     puts table
   end
