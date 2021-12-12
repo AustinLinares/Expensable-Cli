@@ -193,8 +193,13 @@ class Expensable
     date = date_validation
     print "Notes: "
     notes = gets.chomp
-    notes = "" if notes.empty?
-    { amount: amount.to_i, date: date, notes: notes }
+    # notes = "" if notes.empty?
+    # { amount: amount.to_i, date: date, notes: notes }
+    if notes.empty?
+      { amount: amount.to_i, date: date}
+    else
+      { amount: amount.to_i, date: date, notes: notes }
+    end
   end
 
   def login_form
