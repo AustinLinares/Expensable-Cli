@@ -11,58 +11,50 @@ class Expensable
   include CategoryHandlbegin
   include HTTParty
 
-  attr_accessor :tr_type, :categories, :date, :current_month
+  attr_accessor :tr_type, :categories, :current_month
+
   def intialize
-    @date = DateTime.now
     @user = nil
     @categories = []
     @current_month = nil
-    @tr_type = "expenses"
+    @tr_type = nil
   end
 
   def start
     welcome
-    action = ""
     @current_month = Date.today
-    # until action == "exit"
     action = validate_options(["login", "create_user", "exit"])
-      case action
-      when "login" 
-        user_data = login_form
-        data_login = Services::Users.login(user_data)
-        @user = Services::Users.new(data_login)
-        @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
-        # @current_month = DateTime.today
-        # table_categories_amount(@current_month)
-        @tr_type = "expense"
-        category_table
-        second_display
-      when "create_user" 
-        user_data = user_form
-        data_new_user = Services::Users.create_user(user_data)
-        @user = Services::Users.new(data_new_user)
-        @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat)}
-        # @current_month = DateTime.now.month
-        @tr_type = "expense"
-        category_table
-        second_display
-      when "exit" then exit!
-      else
-        puts "Invalid option"
-      end
-    # end
+    @tr_type = "expense"
+    case action
+    when "login"
+      user_data = login_form
+      data_login = Services::Users.login(user_data)
+      @user = Services::Users.new(data_login)
+      @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat) }
+    when "create_user"
+      user_data = user_form
+      data_new_user = Services::Users.create_user(user_data)
+      @user = Services::Users.new(data_new_user)
+      @categories = Services::Users.categories(@user.token).map { |cat| Services::Categories.new(cat) }
+    when "exit" then exit!
+    else
+      puts "Invalid option"
+    end
+    category_table
+    second_display
   end
 
   def second_display
     action = ""
     until action == "logout"
-    action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next", "prev", "logout"])
-    ids = cat_ids
-    case action
+      action, id = get_with_options(["create", "show ID", "update ID", "delete ID", "add-to ID", "toggle", "next",
+                                     "prev", "logout"])
+      ids = cat_ids
+      case action
       when "create"
         create_cat
         category_table
-      when "show" then
+      when "show"
         if ids.include?(id.to_i)
           cat = find_category(id.to_i)
           cat.show_cat(@current_month)
@@ -85,9 +77,11 @@ class Expensable
                 cat.del_transaction(@user.token, id2.to_i)
               else
                 puts "Invalid option"
-              end 
-            when "next" then puts "next action"
-            when "prev" then puts "prev action"
+              end
+            when "next"
+              next_month
+            when "prev"
+              prev_month
             end
             cat.show_cat(@current_month)
             action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
@@ -101,7 +95,7 @@ class Expensable
           cat = find_category(id.to_i)
           cat_updts = update_category(id)
           cat.name = cat_updts[:name]
-          cat.transaction_type = cat_updts[:transaction_type] 
+          cat.transaction_type = cat_updts[:transaction_type]
           category_table
         else
           puts "Invalid ID"
@@ -125,10 +119,11 @@ class Expensable
           puts "Invalid ID"
         end
       when "toggle"
-        if @tr_type == "expense"
-          @tr_type = "income" 
-        elsif @tr_type == "income"
-          @tr_type = "expense" 
+        case @tr_type
+        when "expense"
+          @tr_type = "income"
+        when "income"
+          @tr_type = "expense"
         end
         category_table
       when "next"
@@ -137,7 +132,7 @@ class Expensable
       when "prev"
         prev_month
         category_table
-      when "logout" 
+      when "logout"
         Services::Users.logout(@user.token)
         start
       else
@@ -155,7 +150,7 @@ class Expensable
   end
 
   def validate_options(arr_options)
-    puts "#{arr_options.join(" | ")}"
+    puts arr_options.join(" | ").to_s
     print "> "
     option = gets.chomp
     until arr_options.include? option
@@ -181,9 +176,9 @@ class Expensable
     phone = gets.chomp
     phone = validate_phone(phone)
     if phone.nil?
-      {email: email, password: password, first_name: first_name, last_name:last_name}
+      { email: email, password: password, first_name: first_name, last_name: last_name }
     else
-      {email: email, password: password, first_name: first_name, last_name:last_name, phone: phone}
+      { email: email, password: password, first_name: first_name, last_name: last_name, phone: phone }
     end
   end
 
@@ -195,23 +190,11 @@ class Expensable
       print "Amount: "
       amount = gets.chomp
     end
-    begin
-      print "Date: "
-      date_input = gets.chomp
-      until date_input.match(/^(\d{1,2}(-|\/)){2}\d{4}$/)
-        puts "Use a valid date format dd/mm/yyyy"
-        print "Date: "
-        date_input = gets.chomp
-      end
-      date = Date.parse(date_input)
-    rescue ArgumentError
-      puts "Invalid date"
-      retry
-    end
+    date = date_validation
     print "Notes: "
     notes = gets.chomp
-    notes = "" if notes.empty? # needs validation
-    {amount: amount.to_i, date: date_input, notes: notes}
+    notes = "" if notes.empty?
+    { amount: amount.to_i, date: date, notes: notes }
   end
 
   def login_form
@@ -221,7 +204,7 @@ class Expensable
     print "Password: "
     password = gets.chomp
     password = validate_password(password, "Cannot be blank")
-    {email: email, password: password}
+    { email: email, password: password }
   end
 
   def validate_email(email, error_mess)
@@ -255,10 +238,10 @@ class Expensable
     end
   end
 
- #  def table_categories_amount(date)
- # 
- #    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
-    # trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) } 
+  #  def table_categories_amount(date)
+  #
+  #    month_cat = @categories.select { |category| category.trans_in_month?(date.to_s) }
+  # trans_month = month_cat.map { |category| category.only_month_trans(date.to_s) }
 
   #   amount = 0
   #   temporal = []
@@ -268,29 +251,25 @@ class Expensable
   #     end
   #   end
   #   pp temporal
-  # end  
+  # end
   # end
 
   private
+
   def get_with_options(options)
-    action = ""
-    id = nil
-    loop do
-      puts options.join(" | ")
-      print "> "
-      action, id = gets.chomp.split # ["update", "48"]
-      break
-    end
+    puts options.join(" | ")
+    print "> "
+    action, id = gets.chomp.split # ["update", "48"]
     id.nil? ? [action] : [action, id]
   end
 
   def find_category(id)
-    @categories.find { |cat| cat.id == id}
+    @categories.find { |cat| cat.id == id }
   end
 
   def cat_ids
     total = []
-    @categories.each { |cat| total << cat.id}
+    @categories.each { |cat| total << cat.id }
     total
   end
 
@@ -301,9 +280,7 @@ class Expensable
   def next_month
     @current_month = @current_month >> 1
   end
-
 end
-
 
 test = Expensable.new
 test.start

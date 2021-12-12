@@ -10,7 +10,7 @@ module Services
     base_uri("https://expensable-api.herokuapp.com/")
     attr_accessor :id, :email, :first_name, :last_name, :phone, :token
 
-    def initialize(id: , email: , first_name: , last_name: , phone: , token:)
+    def initialize(id:, email:, first_name:, last_name:, phone:, token:)
       @id = id
       @email = email
       @first_name = first_name
@@ -30,7 +30,7 @@ module Services
 
       JSON.parse(response.body, symbolize_names: true)
     end
-    
+
     def self.login(user_data)
       options = {
         headers: { "Content-Type": "application/json" },
@@ -57,9 +57,7 @@ module Services
         headers: { Authorization: "Token token=#{token}" }
       }
 
-      response = delete("/logout", options)
-
-      # JSON.parse(response.body, symbolize_names: true)
+      delete("/logout", options)
     end
   end
 end
