@@ -64,10 +64,10 @@ class Expensable
       when "show" then
         if ids.include?(id.to_i)
           cat = find_category(id.to_i)
-          tr_ids = cat.trans_ids
           cat.show_cat(@current_month)
           action2, id2 = get_with_options(["add", "update ID", "delete ID", "next", "prev", "back"])
           until action2 == "back"
+            tr_ids = cat.trans_ids
             case action2
             when "add"
               tr_data = trans_form
@@ -189,14 +189,17 @@ class Expensable
       puts "Invalid amount"
       amount = gets.chomp
     end
-    print "Date: "
-    date_input = ""
     begin
       print "Date: "
       date_input = gets.chomp
+      until date_input.match(/^(\d{1,2}(-|\/)){2}\d{4}$/)
+        puts "Use a valid date format dd/mm/yyyy"
+        print "Date: "
+        date_input = gets.chomp
+      end
       date = Date.parse(date_input)
     rescue ArgumentError
-      puts "Use a valid date format dd/mm/yyyy"
+      puts "Invalid date"
       retry
     end
     print "Notes: "
