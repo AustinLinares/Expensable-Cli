@@ -39,7 +39,7 @@ module Services
       row << @name
       if !@transactions.empty?
         @transactions.each do |tr|
-            amount += tr[:amount] if tr[:date][5, 2] == date.to_s
+            amount += tr[:amount] if tr[:date][0,7] == date
         end
       end
       row << amount
@@ -128,9 +128,9 @@ module Services
 
   def show_cat(date)
     rows = []
-    trans = only_month_trans(date)
+    trans = only_month_trans(date.strftime("%Y-%m"))
     table = Terminal::Table.new
-    table.title = "#{@name}\n#{date}"
+    table.title = "#{@name}\n#{date.strftime("%B %Y")}"
     table.headings = %w[ID Date Amount Notes]
     trans.each do |tr|
     rows << [tr[:id], (Date.parse tr[:date]).strftime('%a, %b %e'), tr[:amount], tr[:notes]]      
@@ -140,7 +140,7 @@ module Services
   end
 
   def only_month_trans(month)
-    @transactions.select { |tr| tr[:date][5, 2] == month.to_s }
+    @transactions.select { |tr| tr[:date][0, 7] == month }
   end
 
   def find_tr(tr_id)
