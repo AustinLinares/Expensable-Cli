@@ -8,7 +8,7 @@ module Services
   class Users
     include HTTParty
     base_uri("https://expensable-api.herokuapp.com/")
-    attr_reader :id, :email, :first_name, :last_name, :phone, :token
+    attr_accessor :id, :email, :first_name, :last_name, :phone, :token
 
     def initialize(id: , email: , first_name: , last_name: , phone: , token:)
       @id = id
