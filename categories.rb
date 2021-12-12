@@ -123,7 +123,7 @@ module Services
     }
 
     response = self.class.patch("/categories/#{@id}/transactions/#{tr_id}", options)
-    find_tr(tr_id).merge!(data)
+    find_tr(tr_id).merge!(JSON.parse(response.body, symbolize_names: true))
   end
 
   def show_cat(date)
