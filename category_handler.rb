@@ -47,7 +47,7 @@ module CategoryHandlbegin
 
   private
 
-  def category_form(trns: true)
+  def category_form(trns= true)
     print "Name: "
     name = gets.chomp
     name = name_validation(name)
