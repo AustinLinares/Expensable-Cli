@@ -23,7 +23,8 @@ module CategoryHandlbegin
     table = Terminal::Table.new
     table.title = "#{@tr_type.capitalize}\n#{@current_month}"
     table.headings = ["ID", "Category", "Total"]
-    table.rows = @categories.map do |cat|
+    tr_selected = @categories.select { |cat| cat.transaction_type == @tr_type}
+    table.rows = tr_selected.map do |cat|
       cat.month_row(@current_month)
     end
     puts table
@@ -39,7 +40,7 @@ module CategoryHandlbegin
     print "Transaction type: "
     transaction_type = gets.chomp
     transaction_type = tr_type_validation(transaction_type)
-    return { name: name, transaction_type: transaction_type } if tr = false
+    return { name: name, transaction_type: transaction_type } if tr == false
     { name: name, transaction_type: transaction_type, transactions: []}
   end
 
