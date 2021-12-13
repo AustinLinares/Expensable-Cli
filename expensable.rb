@@ -193,8 +193,6 @@ class Expensable
     date = date_validation
     print "Notes: "
     notes = gets.chomp
-    # notes = "" if notes.empty?
-    # { amount: amount.to_i, date: date, notes: notes }
     if notes.empty?
       { amount: amount.to_i, date: date}
     else
